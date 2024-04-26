@@ -1,0 +1,4 @@
+
+[pip.deps]
+datasets = ""
+huggingface_hub = ""
