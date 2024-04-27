@@ -33,6 +33,7 @@ current_packages = [i.name for i in all_results]
         continue
     end
     res = analyze(package; root="./tmp_code", auth)
+    display(res)
     push!(all_results, res)
 end
 

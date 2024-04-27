@@ -4,8 +4,15 @@ using JSON3
 using PackageAnalyzer
 using ProgressMeter
 using StringEncodings
+using JuliaFormatter
 
 const directory_path = "./tmp_code"
+const STYLE_PERMUTATIONS = [
+    JuliaFormatter.DefaultStyle(),
+    JuliaFormatter.YASStyle(),
+    JuliaFormatter.BlueStyle(),
+    JuliaFormatter.SciMLStyle()
+]
 
 function list_files(directory, extension="jl")
     jl_files = []
@@ -46,7 +53,7 @@ function get_licenses(package)
         licenses = join(licenses, ", ")
         return licenses
     end
-    
+
     if size(package.licenses_in_project, 1) > 0
         licenses = unique(vcat(package.licenses_in_project))
         licenses = join(licenses, ", ")
@@ -64,7 +71,7 @@ function main()
 
     code_data = Vector{Dict}()
     ix = 0
-    licenses = String["MIT", ]
+    licenses = String["MIT",]
     permitted_licenses = ["MIT",
         "Apache-2.0",
         "MPL-2.0",
@@ -94,10 +101,10 @@ function main()
         end
 
         package_dict = Dict(:package_name => package.name,
-                        :repo => package.repo,
-                        :version => package.version,
-                        :tree_hash => package.tree_hash,
-                        :licenses => licenses,
+            :repo => package.repo,
+            :version => package.version,
+            :tree_hash => package.tree_hash,
+            :licenses => licenses,
         )
         code_files = get_code(package)
         for file in code_files
@@ -128,6 +135,21 @@ function main()
             new_row[:path] = path
             new_row[:type] = "code"
             push!(code_data, new_row)
+
+            # Generate formatted code permutations
+            for style in STYLE_PERMUTATIONS
+                try
+                    formatted_text = format_text(text, style)
+                    new_row[:text] = formatted_text
+                    new_row[:size] = "$(length(formatted_text))"
+                    new_row[:path] = path
+                    new_row[:type] = "code-$(style)"
+                    push!(code_data, new_row)
+                catch e
+                    @info "unable to format $file with style $style, skipping..."
+                    continue
+                end
+            end
         end
 
         doc_files = get_docs(package)
