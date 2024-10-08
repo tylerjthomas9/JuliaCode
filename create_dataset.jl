@@ -93,10 +93,10 @@ function main()
             licenses = unique([i.licenses_found for i in license_files][1])
         end
         if !all(license -> license in permitted_licenses, licenses)
-            println("Skipping $(package.name) because of licenses: $licenses")
+            println("\nSkipping $(package.name) because of licenses: $licenses")
             continue
         elseif length(licenses) == 0
-            println("Skipping $(package.name) because of licenses: $licenses")
+            println("\nSkipping $(package.name) because of licenses: $licenses")
             continue
         end
 
@@ -138,6 +138,7 @@ function main()
 
             # Generate formatted code permutations
             for style in STYLE_PERMUTATIONS
+                continue
                 try
                     formatted_text = format_text(text, style)
                     new_row[:text] = formatted_text
